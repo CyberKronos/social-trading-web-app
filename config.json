@@ -1,0 +1,16 @@
+{
+	"firebase": {
+		"apiKey": "AIzaSyCv7bkSnkMe5D_0VlBas4XjGWJLHlCI_9o",
+    "authDomain": "social-trading.firebaseapp.com",
+    "databaseURL": "https://social-trading.firebaseio.com",
+    "storageBucket": "social-trading.appspot.com"
+	},
+	"twitter": {
+		"consumerKey": "ffFH4uI3ghmaxzvNRCyjRf4wr",
+		"consumerSecret": "LpHsE8DRMrMuJlldLNeWOyliwmTXEfkZzOtbjQOH1peNujeXuL"
+	},
+	"instagram": {
+		"clientId": "c415a78d801e40a4a2e89ee7ca9fb1c4",
+		"clientSecret": "297490a826524b289b4d7186c1a53334"
+	}
+}
