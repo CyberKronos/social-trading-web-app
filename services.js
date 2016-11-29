@@ -38,10 +38,16 @@ passport.use(new TwitterStrategy({
     if (fbUser) {
       // User is signed in.
       // Create social account key
-      let socialAccKey = socialAccData.profileData.screen_name + "-twitter";
+      let socialAccKey = socialAccData.profileData.screen_name + "-Twitter";
 
       // Set account type
       socialAccData['accType'] = 'Twitter';
+
+      // Set user account link
+      socialAccData['userAcc'] = fbUser.uid;
+
+      // Set account to unapproved
+      socialAccData['approved'] = false;
 
       // Save into Firebase
       let updates = {};

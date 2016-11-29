@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "start": "npm-run-all --parallel dev-server server-api",
-    "dev-server": "NODE_ENV=development cross-env hjs-dev-server",
+    "dev-server": "cross-env NODE_ENV=development hjs-dev-server",
     "server-api": "node server.js",
     "clean": "rimraf dist",
     "build": "npm run clean && cross-env NODE_ENV=production webpack",
