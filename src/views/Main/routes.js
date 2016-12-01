@@ -25,12 +25,10 @@ export const makeMainRoutes = () => {
       <Route path="home" component={Home} onEnter={requireAuth} />
       <Route path="login" component={Login} />
       <Route path="messages" component={Messages} />
+      {/* <Route path="accounts/:accountKey" component={Accounts}> */}
       <Route path="accounts/:accountKey" component={Accounts}>
-        {/* add some nested routes where we want the UI to nest */}
-        {/* render the forms page when at `/accounts/123` */}
         <IndexRoute component={Forms}/>
-        {/* render the form component at /accounts/123/forms */}
-        <Route path="form" component={Forms} />
+        <Route path="forms" component={Forms} />
         <Route path="history" component={History} />
       </Route>
     </Route>

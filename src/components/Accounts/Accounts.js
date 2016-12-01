@@ -37,8 +37,22 @@ export class Accounts extends React.Component {
     }.bind(this));
   }
 
+  renderLinks(){
+    if (this.props.params) {
+      return (
+        <ul>
+          <li><Link to={`/accounts/${this.props.params.accountKey}/forms`}>Set Spots</Link></li>
+          <li><Link to={`/accounts/${this.props.params.accountKey}/history`}>History</Link></li>
+        </ul>
+      );
+    } else {
+      return (
+        <div></div>
+      );
+    }
+  }
+
   render() {
-    console.log(this.props);
     const {socialAccs} = this.state
     const socialAccounts = socialAccs.map((account) =>
       <div key={account.profileData.id}>
@@ -50,10 +64,11 @@ export class Accounts extends React.Component {
         <div>{account.accType}</div>
       </div>
     );
-
+    
     return (
       <div>
         <div>{ socialAccounts }</div>
+        { this.renderLinks() }
         { this.props.children }
       </div>
     )

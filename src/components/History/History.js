@@ -11,7 +11,24 @@ export class History extends React.Component {
   }
 
   componentWillMount() {
-    const { accountKey } = this.props
+    const { accountKey } = this.props.params
+    console.log(accountKey);
+    let spotsRef = firebase.database().ref("spots").orderByChild("socialAccKey").equalTo(accountKey);
+
+    spotsRef.on("value", function(dataSnapshot) {
+      let spotsHistory = [];
+      dataSnapshot.forEach(function(childSnapshot) {
+        var childData = childSnapshot.val();
+        spotsHistory.push(childData);
+      });
+      this.setState({
+        spotsHistory: spotsHistory
+      });
+    }.bind(this));
+  }
+
+  componentWillReceiveProps() {
+    const { accountKey } = this.props.params
     let spotsRef = firebase.database().ref("spots").orderByChild("socialAccKey").equalTo(accountKey);
 
     spotsRef.on("value", function(dataSnapshot) {
