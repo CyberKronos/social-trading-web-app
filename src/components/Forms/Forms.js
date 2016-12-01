@@ -15,31 +15,60 @@ export class Forms extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      spotOneUrl: '',
-      spotTwoUrl: '',
-      adUrl: ''
+      regOneUrl: '',
+      regTwoUrl: '',
+      adUrl: '',
     };
 
-    this._onSpotOneChange = this._onSpotOneChange.bind(this);
-    this._onSpotTwoChange = this._onSpotTwoChange.bind(this);
+    this._onRegOneChange = this._onRegOneChange.bind(this);
+    this._onRegTwoChange = this._onRegTwoChange.bind(this);
     this._onAdChange = this._onAdChange.bind(this);
     this._onHandleSubmit = this._onHandleSubmit.bind(this);
   }
 
-  _getValidationState() {
-    console.log('valid');
-    // const length = this.state.spotOneUrl.length;
-    // if (length > 10) return 'success';
-    // else if (length > 5) return 'warning';
-    // else if (length > 0) return 'error';
+  componentWillReceiveProps() {
+    this.setState({
+      regOneUrl: '',
+      regTwoUrl: '',
+      adUrl: ''
+    });
   }
 
-  _onSpotOneChange(event) {
-    this.setState({spotOneUrl: event.target.value});
+  _validateUrl(value){
+    return /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/gi.test(value);
   }
 
-  _onSpotTwoChange(event) {
-    this.setState({spotTwoUrl: event.target.value});
+  // TODO: Condense the change binding events and validation for input form to one function each
+  _getRegOneValidState() {
+    const { regOneUrl } = this.state;
+
+    if (regOneUrl.length <= 0) return null;
+    if (this._validateUrl(regOneUrl)) return 'success';
+    else return 'error';
+  }
+
+  _getRegTwoValidState() {
+    const { regTwoUrl } = this.state;
+
+    if (regTwoUrl.length <= 0) return null;
+    if (this._validateUrl(regTwoUrl)) return 'success';
+    else return 'error';
+  }
+
+  _getAdValidState() {
+    const { adUrl } = this.state;
+
+    if (adUrl.length <= 0) return null;
+    if (this._validateUrl(adUrl)) return 'success';
+    else return 'error';
+  }
+
+  _onRegOneChange(event) {
+    this.setState({regOneUrl: event.target.value});
+  }
+
+  _onRegTwoChange(event) {
+    this.setState({regTwoUrl: event.target.value});
   }
 
   _onAdChange(event) {
@@ -47,45 +76,54 @@ export class Forms extends React.Component {
   }
 
   _onHandleSubmit(event) {
-    // console.log(this.state);
-    // event.preventDefault();
-    const accountKey = this.props.params.accountKey;
-    // Get a key for a new Spots.
-    let newSpotKey = firebase.database().ref().child('spots').push().key;
-    // Spot data
-    let spotData = {
-      accountKey: accountKey,
-      spotOneUrl: this.state.spotOneUrl,
-      spotTwoUrl: this.state.spotTwoUrl,
-      adUrl: this.state.adUrl,
-      approved: false
+    let regOneState = this._getRegOneValidState();
+    let regTwoState = this._getRegTwoValidState();
+    let adState = this._getAdValidState();
+
+    if (regOneState == 'success' && regTwoState == 'success' && adState == 'success') {
+      const { accountKey } = this.props
+      // Get a key for a new Spots.
+      let newSpotKey = firebase.database().ref().child('spots').push().key;
+      // Spot data
+      let spotData = {
+        socialAccKey: accountKey,
+        regOneUrl: this.state.regOneUrl,
+        regTwoUrl: this.state.regTwoUrl,
+        adUrl: this.state.adUrl,
+        approved: false,
+        spotKey: newSpotKey,
+        submittedAt: firebase.database.ServerValue.TIMESTAMP
+      }
+      // Write the new spots' data simultaneously in the spots list and the account's spots list.
+      let updates = {};
+      updates['/spots/' + newSpotKey] = spotData;
+      updates['/socialAccounts/' + accountKey + '/latestSpots/'] = spotData;
+      // Save into Firebase
+      return firebase.database().ref().update(updates);
+    } else {
+      console.log('Your spots contain invalid urls!');
+      event.preventDefault();
+      return 'Your spots contain invalid urls!';
     }
-    // Write the new spots' data simultaneously in the spots list and the account's spots list.
-    let updates = {};
-    updates['/spots/' + newSpotKey] = spotData;
-    updates['/socialAccounts/' + accountKey + '/spots/' + newSpotKey] = spotData;
-    // Save into Firebase
-    return firebase.database().ref().update(updates);
   }
 
   render() {
-    console.log(this.state);
     return (
-      <Col xs={6} xsOffset={3}>
+      <div>
         <form onSubmit={this._onHandleSubmit}>
-          <FormGroup controlId="formSpotOneUrl" validationState={this._getValidationState()}>
-            <ControlLabel>Spot #1 URL</ControlLabel>
-            <FormControl type="text" value={this.state.spotOneUrl} placeholder="url" onChange={this._onSpotOneChange} />
+          <FormGroup controlId="formRegOneUrl" validationState={this._getRegOneValidState()}>
+            <ControlLabel>Reg #1 URL</ControlLabel>
+            <FormControl type="text" value={this.state.regOneUrl} placeholder="url" onChange={this._onRegOneChange} />
             <FormControl.Feedback />
           </FormGroup>
 
-          <FormGroup controlId="formSpotTwoUrl" validationState={this._getValidationState()}>
-            <ControlLabel>Spot #2 URL</ControlLabel>
-            <FormControl type="text" value={this.state.spotTwoUrl} placeholder="url" onChange={this._onSpotTwoChange} />
+          <FormGroup controlId="formRegTwoUrl" validationState={this._getRegTwoValidState()}>
+            <ControlLabel>Reg #2 URL</ControlLabel>
+            <FormControl type="text" value={this.state.regTwoUrl} placeholder="url" onChange={this._onRegTwoChange} />
             <FormControl.Feedback />
           </FormGroup>
 
-          <FormGroup controlId="formAdUrl" validationState={this._getValidationState()}>
+          <FormGroup controlId="formAdUrl" validationState={this._getAdValidState()}>
             <ControlLabel>Ad URL</ControlLabel>
             <FormControl type="text" value={this.state.adUrl} placeholder="url" onChange={this._onAdChange} />
             <FormControl.Feedback />
@@ -97,7 +135,7 @@ export class Forms extends React.Component {
             </Button>
           </FormGroup>
         </form>
-      </Col>
+      </div>
     );
   }
 }

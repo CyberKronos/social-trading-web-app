@@ -4,6 +4,7 @@ import AuthService from 'utils/AuthService'
 // import styles from './styles.module.css'
 import firebase from 'firebase';
 import Forms from 'components/Forms/Forms'
+import History from 'components/History/History'
 
 export class Accounts extends React.Component {
   static propTypes = {
@@ -18,7 +19,7 @@ export class Accounts extends React.Component {
     }
   }
 
-  componentWillMount(){
+  componentWillMount() {
     const {profile} = this.state
     let socialAccRef = firebase.database().ref("socialAccounts").orderByChild("userAcc").equalTo(profile.user_id);
 
@@ -37,6 +38,7 @@ export class Accounts extends React.Component {
   }
 
   render() {
+    console.log(this.props);
     const {socialAccs} = this.state
     const socialAccounts = socialAccs.map((account) =>
       <div key={account.profileData.id}>
@@ -52,8 +54,7 @@ export class Accounts extends React.Component {
     return (
       <div>
         <div>{ socialAccounts }</div>
-        {/*the router will figure out the children for us*/}
-        {this.props.children}
+        { this.props.children }
       </div>
     )
   }

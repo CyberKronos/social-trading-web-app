@@ -19,7 +19,6 @@ export class Home extends React.Component {
   constructor(props, context) {
     super(props, context)
     this.state = {
-      socialAccs: [],
       profile: props.auth.getProfile()
     }
     props.auth.on('profile_updated', (newProfile) => {

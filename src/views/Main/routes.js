@@ -7,6 +7,7 @@ import Login from './Login/Login'
 import Messages from 'components/Messages/Messages'
 import Accounts from 'components/Accounts/Accounts'
 import Forms from 'components/Forms/Forms'
+import History from 'components/History/History'
 
 const auth = new AuthService(__AUTH0_CLIENT_ID__, __AUTH0_DOMAIN__);
 
@@ -30,6 +31,7 @@ export const makeMainRoutes = () => {
         <IndexRoute component={Forms}/>
         {/* render the form component at /accounts/123/forms */}
         <Route path="form" component={Forms} />
+        <Route path="history" component={History} />
       </Route>
     </Route>
   )
