@@ -33,22 +33,18 @@ passport.use(new TwitterStrategy({
       tokenSecret: tokenSecret,
       profileData: profile._json
     };
-
+    // Store Account in Firebase
     let fbUser = firebase.auth().currentUser;
     if (fbUser) {
       // User is signed in.
       // Create social account key
       let socialAccKey = socialAccData.profileData.screen_name + "-Twitter";
-
       // Set account type
       socialAccData['accType'] = 'Twitter';
-
       // Set user account link
       socialAccData['userAcc'] = fbUser.uid;
-
       // Set account to unapproved
       socialAccData['approved'] = false;
-
       // Save into Firebase
       let updates = {};
       updates['socialAccounts/' + socialAccKey] = socialAccData;
@@ -74,63 +70,6 @@ passport.use(new InstagramStrategy({
       accessToken: accessToken,
       profileData: profile._json.data
     };
-    storeInstagramUser(socialAccData, done);
+    // Store Account in Firebase
   }
 ));
-
-/**
- * Private Functions
- */
-
-/**
- * TODO: Implement function
- * [storeTwitterUser description]
- * @param  {[type]}   userData [description]
- * @param  {Function} done     [description]
- * @return {[type]}            [description]
- */
-function storeTwitterUser(socialAccData, done) {
-  let socialAccKey = socialAccData.profileData.screen_name + "-twitter";
-  let updates = {};
-  updates['socialAccounts/' + socialAccKey] = socialAccData;
-  firebase.database().ref().update(updates);
-  // var fbUser = firebase.auth().currentUser;
-  // if (fbUser) {
-  //   // User is signed in.
-  //   // Create social account key
-  //   let socialAccKey = socialAccData.profileData.screen_name + "-twitter";
-  //
-  //   // Set account type
-  //   socialAccData['accType'] = 'Twitter';
-  //
-  //   // Save into Firebase
-  //   let updates = {};
-  //   updates['socialAccounts/' + socialAccKey] = socialAccData;
-  //   updates['accounts/' + fbUser.uid + '/social_accounts/' + socialAccKey] = true;
-  //
-  //   firebase.database().ref().update(updates);
-  // } else {
-  //   console.log('No user is signed in.');
-  // }
-  return done(null, socialAccData);
-}
-
-/**
- * TODO: Implement function
- * [storeInstagramUser description]
- * @param  {[type]}   userData [description]
- * @param  {Function} done     [description]
- * @return {[type]}            [description]
- */
-function storeInstagramUser(userData, done) {
-  var fbUser = firebase.auth().currentUser;
-  if (fbUser) {
-    // User is signed in.
-    console.log(fbUser);
-    console.log("");
-    console.log(socialAccData);
-  } else {
-    console.log('No user is signed in.');
-  }
-  return done(null, socialAccData);
-}

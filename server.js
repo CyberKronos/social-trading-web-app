@@ -29,17 +29,22 @@ var authenticate = jwt({
 });
 
 app.get('/api/login', function(req, res) {
-  firebase.auth()
-  .signInWithCustomToken(req.query.id_token)
+  firebase.auth().signInWithCustomToken(req.query.id_token)
+  .then(function() {
+    res.json({ message: "Login Successful" });
+  })
   .catch(function(error) {
+    console.log('Could not login with custom token');
     console.log(error);
+    res.json(error);
   });
 });
 
 app.get('/api/logout', function(req, res) {
   firebase.auth().signOut()
   .then(function() {
-    console.log("Signout Successful");
+    console.log("Logout Successful");
+    res.json({ message: "Logout Successful" });
   }, function(error) {
     console.log(error);
   });

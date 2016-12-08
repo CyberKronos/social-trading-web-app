@@ -12,7 +12,7 @@ import History from 'components/History/History'
 const auth = new AuthService(__AUTH0_CLIENT_ID__, __AUTH0_DOMAIN__);
 
 // onEnter callback to validate authentication in private routes
-const requireAuth = (nextState, replace) => {
+const requireAuthApprove = (nextState, replace) => {
   if (!auth.loggedIn()) {
     replace({ pathname: '/login' })
   }
@@ -22,7 +22,7 @@ export const makeMainRoutes = () => {
   return (
     <Route path="/" component={Container} auth={auth}>
       <IndexRedirect to="/home" />
-      <Route path="home" component={Home} onEnter={requireAuth} />
+      <Route path="home" component={Home} onEnter={requireAuthApprove} />
       <Route path="login" component={Login} />
       <Route path="messages" component={Messages} />
       {/* <Route path="accounts/:accountKey" component={Accounts}> */}

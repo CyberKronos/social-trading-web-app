@@ -13,7 +13,8 @@ export default class AuthService extends EventEmitter {
       auth: {
         redirectUrl: `${window.location.origin}/login`,
         responseType: 'token'
-      }
+      },
+      allowedConnections: ['Username-Password-Authentication']
     })
     this.auth0 = new Auth0({ domain : domain, clientID: clientId})
     // Add callback for lock `authenticated` event
@@ -27,14 +28,14 @@ export default class AuthService extends EventEmitter {
   _doAuthentication(authResult){
     // Saves the user token
     this.setToken(authResult.idToken)
-    // navigate to the home route
-    browserHistory.replace('/home')
     // Async loads the user profile data
     this.lock.getProfile(authResult.idToken, (error, profile) => {
       if (error) {
+        console.log('Error');
         console.log('Error loading the Profile', error)
       } else {
-        this.setProfile(profile)
+        console.log(profile);
+        this.setProfile(profile);
 
         // Set the options to retreive a firebase delegation token
         const options = {
@@ -49,38 +50,30 @@ export default class AuthService extends EventEmitter {
           if(!err) {
             // Saves the delegation token
             localStorage.setItem('del_token', result.id_token);
-
             // Exchange the delegate token for a Firebase auth token
-            firebase.auth()
-              .signInWithCustomToken(result.id_token)
-              .catch(function(error) {
-                console.log(error);
+            firebase.auth().signInWithCustomToken(result.id_token)
+            .then(function() {
+              // Store user account into Firebase
+              const usersRef = firebase.database().ref('accounts/');
+              usersRef.child(profile.user_id).once('value', function(snapshot) {
+                if (snapshot.val() === null) {
+                  profile['approved'] = false;
+                  usersRef.child(profile.user_id).set(profile);
+                  console.log('user has been stored in the database');
+                } else {
+                  console.log('user is already in the database');
+                }
               });
-
-            // Store user account into Firebase
-            const usersRef = firebase.database().ref('accounts/');
-            usersRef.child(profile.user_id).once('value', function(snapshot) {
-              if (snapshot.val() === null) {
-                usersRef.child(profile.user_id).set(profile);
-                console.log('user has been stored in the database');
-              } else {
-                console.log('user is already in the database');
-              }
-            });
-
-            // Login from the server as well
-            let url = "/api/login";
-            let query = { id_token: result.id_token };
-            let params = Object.keys(query)
-                               .map((key) => encodeURIComponent(key) + "=" + encodeURIComponent(query[key]))
-                               .join("&")
-                               .replace(/%20/g, "+");
-            fetch(url + "?" + params)
-            .then(function(res) {
-              console.log(res);
+            })
+            .catch(function(error) {
+              console.log(error);
             });
           }
         });
+        // Login from server
+        this.serverLogin();
+        // navigate to the home route
+        browserHistory.replace('/home');
       }
     })
   }
@@ -95,8 +88,8 @@ export default class AuthService extends EventEmitter {
     this.lock.show()
   }
 
-  loggedIn(){
-    // Login from server
+  serverLogin() {
+    // Checks if there is a saved token and it's still valid from server
     let url = "/api/login";
     let id_token = localStorage.getItem('del_token');
     let query = { id_token: id_token };
@@ -105,11 +98,18 @@ export default class AuthService extends EventEmitter {
                        .join("&")
                        .replace(/%20/g, "+");
     fetch(url + "?" + params)
+    .then(res => res.json())
     .then(function(res) {
-      console.log(res);
+      if (res.code == "auth/invalid-custom-token") {
+        console.log(res.code);
+      } else {
+        console.log('Server logged in successfully.');
+      }
     });
+  }
 
-    // Checks if there is a saved token and it's still valid
+  loggedIn(){
+    // Checks if there is a saved token and it's still valid from client
     const token = this.getToken()
     return !!token && !isTokenExpired(token)
   }
@@ -144,7 +144,7 @@ export default class AuthService extends EventEmitter {
     localStorage.removeItem('profile');
 
     // Logout from client
-    firebase.auth().signOut().then(function() {
+    firebase.auth().signOut().then(function(res) {
       console.log("Signout Successful")
     }, function(error) {
       console.log(error);
@@ -152,9 +152,8 @@ export default class AuthService extends EventEmitter {
 
     // Logout from server
     fetch('/api/logout')
-    .then(function(res) {
-      console.log(res);
-    });
+    .then(res => res.json())
+    .then(res => console.log(res.message));
   }
 
   _checkStatus(response) {
