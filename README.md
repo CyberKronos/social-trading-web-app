@@ -8,3 +8,5 @@ Web app for social trading
 - unit testing
 - instagram api
 - html/css style
+- social account approvals
+- dockerize app

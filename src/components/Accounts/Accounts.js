@@ -54,6 +54,7 @@ export class Accounts extends React.Component {
 
   render() {
     const {socialAccs} = this.state
+    console.log(socialAccs);
     const socialAccounts = socialAccs.map((account) =>
       <div key={account.profileData.id}>
         <div>{account.profileData.screen_name}</div>
@@ -62,9 +63,10 @@ export class Accounts extends React.Component {
           <img src={account.profileData.profile_image_url_https} />
         </Link>
         <div>{account.accType}</div>
+        <div>{account.approved.toString()}</div>
       </div>
     );
-    
+
     return (
       <div>
         <div>{ socialAccounts }</div>

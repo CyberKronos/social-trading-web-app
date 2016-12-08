@@ -57,7 +57,6 @@ export default class AuthService extends EventEmitter {
               const usersRef = firebase.database().ref('accounts/');
               usersRef.child(profile.user_id).once('value', function(snapshot) {
                 if (snapshot.val() === null) {
-                  profile['approved'] = false;
                   usersRef.child(profile.user_id).set(profile);
                   console.log('user has been stored in the database');
                 } else {

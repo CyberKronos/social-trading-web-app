@@ -19,8 +19,7 @@ export class Home extends React.Component {
   constructor(props, context) {
     super(props, context)
     this.state = {
-      profile: props.auth.getProfile(),
-      approvalStatus: true,
+      profile: props.auth.getProfile()
     }
     props.auth.on('profile_updated', (newProfile) => {
       this.setState({
@@ -30,27 +29,14 @@ export class Home extends React.Component {
   }
 
   componentWillMount(){
-    const {profile} = this.state
-
     // Check if user is logged in
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
-        // User is signed in.
-        console.log(user);
+        console.log('User is signed in.');
       } else {
         console.log('No user is signed in.');
       }
     });
-
-    // Check if user is approved
-    const userId = profile.user_id;
-    const userRef = firebase.database().ref('accounts/' + userId);
-    userRef.on('value', function(snapshot) {
-      const approvalStatus = snapshot.val().approved
-      this.setState({
-        approvalStatus: approvalStatus
-      });
-    }.bind(this));
   }
 
   _logout() {
@@ -58,32 +44,16 @@ export class Home extends React.Component {
     this.context.router.push('/login');
   }
 
-  approvalRender() {
-    const { approvalStatus } = this.state
-    if (!approvalStatus) {
-      return (
-        <p>Your account is still pending to be approved. You will not be able to trade until then. We will send you an email when your account is ready.</p>
-      );
-    } else {
-      return (
-        <div>
-        <Button><a href="/api/auth/twitter">Add Twitter Acc</a></Button>
-        {/* <Button><a href="/api/auth/instagram">Add Instagram Acc</a></Button> */}
-        </div>
-      );
-    }
-  }
-
   render() {
     const { profile } = this.state
-    console.log(this.state);
     return (
       <div className={styles.root}>
         <Accounts auth={this.props.auth}></Accounts>
         <h2>Home</h2>
         <p>Welcome {profile.name}!</p>
-        {this.approvalRender()}
-        {/* <Messages auth={this.props.auth}></Messages> */}
+        <Messages auth={this.props.auth}></Messages>
+        <Button><a href="/api/auth/twitter">Add Twitter Acc</a></Button>
+        {/* <Button><a href="/api/auth/instagram">Add Instagram Acc</a></Button> */}
         <Button onClick={this._logout.bind(this)}>Logout</Button>
       </div>
     );
